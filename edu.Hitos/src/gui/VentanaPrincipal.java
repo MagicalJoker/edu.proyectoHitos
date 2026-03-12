@@ -144,6 +144,7 @@ public class VentanaPrincipal extends JFrame {
 
     private void eliminarEmpleado() {
         String nombre = txtNombreEmpleado.getText().trim();
+        String departamento = (String) comboDepartamento.getSelectedItem(); //nuevo añadido
         if (nombre.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Escribe el nombre del empleado a eliminar.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -151,16 +152,18 @@ public class VentanaPrincipal extends JFrame {
         Conexion conexion = new Conexion();
         Connection con = conexion.getConnection();
         try {
-            String query = "DELETE FROM empleados WHERE nombre = ?";
+            String query = "DELETE FROM empleados WHERE nombre = ? " +
+                           "AND id_departamento = (SELECT id FROM departamentos WHERE nombre = ?)"; //nuevo añadido. Comparador nomombre con subquery
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, nombre);
+            ps.setString(2, departamento); //nuevo añadido
             int filas = ps.executeUpdate();
             if (filas > 0) {
                 JOptionPane.showMessageDialog(null, "Empleado eliminado correctamente.");
                 txtNombreEmpleado.setText("");
                 cargarEmpleados();
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró ningún empleado con ese nombre.", "Error", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "No se encontró ningún empleado con ese nombre en ese departamento.", "Error", JOptionPane.WARNING_MESSAGE);
             }
         } catch (SQLException e) {
             System.out.println("Error al eliminar empleado: " + e.getMessage());
@@ -180,8 +183,8 @@ public class VentanaPrincipal extends JFrame {
         try {
             String query = "SELECT p.nombre, p.precio, a.nombre AS almacen, sa.stock " +
                            "FROM productos p " +
-                           "JOIN stock_almacen sa ON p.id = sa.id_producto " +
-                           "JOIN almacenes a ON sa.id_almacen = a.id " +
+                           "JOIN stock_almacen sa ON (p.id = sa.id_producto) " +
+                           "JOIN almacenes a ON (sa.id_almacen = a.id) " +
                            "ORDER BY p.nombre ASC";
             PreparedStatement ps = con.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
@@ -249,23 +252,25 @@ public class VentanaPrincipal extends JFrame {
         Conexion conexion = new Conexion();
         Connection con = conexion.getConnection();
         try {
-        	/**
-        	 * @info
-        	 * Inserta el producto en la base de datos y recupera inmediatamente el ID que MySQL le ha asignado 
-        	 * automáticamente, porque ese ID es necesario para el siguiente insert en la tabla stock_almacen
-        	 */
-		            String queryProducto = "INSERT INTO productos (nombre, precio) VALUES (?, ?)";
-		            PreparedStatement ps = con.prepareStatement(queryProducto, PreparedStatement.RETURN_GENERATED_KEYS);
-		            ps.setString(1, nombre);
-		            ps.setDouble(2, precio);
-		            ps.executeUpdate();
-		
-		            ResultSet keys = ps.getGeneratedKeys();
-		            if (keys.next()) {
-		                int idProducto = keys.getInt(1);
-             /**
-              * @endInfo   
-              */
+            // Comprueba si el producto ya existe
+            String queryCheck = "SELECT id FROM productos WHERE nombre = ?";
+            PreparedStatement psCheck = con.prepareStatement(queryCheck);
+            psCheck.setString(1, nombre);
+            ResultSet rsCheck = psCheck.executeQuery();
+            if (rsCheck.next()) {
+                JOptionPane.showMessageDialog(null, "El producto ya existe.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String queryProducto = "INSERT INTO productos (nombre, precio) VALUES (?, ?)";
+            PreparedStatement ps = con.prepareStatement(queryProducto, PreparedStatement.RETURN_GENERATED_KEYS);
+            ps.setString(1, nombre);
+            ps.setDouble(2, precio);
+            ps.executeUpdate();
+
+            ResultSet keys = ps.getGeneratedKeys();
+            if (keys.next()) {
+                int idProducto = keys.getInt(1);
                 String queryAlmacen = "SELECT id FROM almacenes WHERE nombre = ?";
                 PreparedStatement psAlmacen = con.prepareStatement(queryAlmacen);
                 psAlmacen.setString(1, almacen);
