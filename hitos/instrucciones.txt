@@ -1,0 +1,25 @@
+Hito 1: 
+-Crear una ventana de Login donde el usuario tiene que indicar el nombre de usuario y contraseña, en caso de que existan se abrirá la página inicial de la APP
+-Tener un limite de intentos para loguearse, en caso de que supere ese límite no podrá volver a intentarlo hasta que no reinicie la interfaz
+-Una vez logueado en la página inicial de la APP debe de aparecer el usuario y la hora a la que ha accedido a la APP 
+(Pista: Utilizar una nueva tabla para los logins de los usuario)
+
+
+
+Hito 2: 
+-Crear una pagina inicial de la APP donde haya 3 pestañas , cada unq redirecciona a una parte distinta de la APP
+Pista: Usar un JTabbedPane donde se incluya las 3 ventanas diferentes o crear 3 botones que redireccionen a las nuevas ventanas
+-Pestaña 1: Debe aparecer un panel de texto donde aparezca una lista de los 10 primeros empleados ordenados alfabéticamente  junto al departamento al que pertenecen (cualquier usuario puede realizar esta función)
+-Pestaña 1: Poder añadir o eliminar un empleado junto a su departamento (solo el usuario admin puede realizar esta acción)
+
+
+Hito 3: 
+-Pestaña 2: Añadir nuevos productos junto a su precio y asignación de stock de dichos productos en los almacenes ( no se permiten precios negativos ni stock menor a cero)
+-Pestaña 2: Crear un botón de "Aplicar Descuentos" donde te pide el % de descuento que vas a aplicar a todos los productos y se lo aplica
+
+
+
+Hito 4:
+-Pestaña 3: Mostrar en un JtextPanel el stock total de productos filtrado por país
+-Pestaña 3: Crear un JLabel que muestra el almacén con más unidades dentro del país seleccionado
+-Pestaña 3: Mostrar en una parte de la pestaña aquellos almacenes que no tienen todavía ningún producto
